@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoniaTeq - O Sabor da Venezuela!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Poppins:wght@400;600;700;800&family=Roboto:wght@400;500&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #FFF8F0; /* Um tom de creme bem claro */
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+        .logo-font {
+            font-family: 'Lobster', cursive;
+        }
+        .history-font {
+            font-family: 'Merriweather', serif;
+        }
+        .hero-bg {
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('images/bandeiravenezuela.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .menu-bg {
+             background-color: #FFFAF0;
+        }
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        .slide-in-up {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+        /* Animação para o ícone do carrinho */
+        @keyframes cart-bump {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        .cart-bump {
+            animation: cart-bump 0.4s ease-in-out;
+        }
+        /* Estilização da barra de rolagem */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFF8F0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E8A33A;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d48f2c;
+        }
+        /* Estilo para seletor de idioma */
+        .lang-btn.active {
+            color: #E8A33A;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        /* Animação de remoção de item do carrinho */
+        @keyframes item-remove-anim {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.8); }
+        }
+        .item-removing {
+            animation: item-remove-anim 0.3s ease-in forwards;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Ícone do Carrinho Flutuante -->
+    <button id="cart-icon" class="fixed bottom-5 right-5 z-50 bg-yellow-500 text-white p-4 rounded-full shadow-lg hover:bg-yellow-600 transition-transform transform hover:scale-110">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-cart3" viewBox="0 0 16 16">
+            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l.84 4.479 9.144-.459L13.89 4H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+        </svg>
+        <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">0</span>
+    </button>
+
+    <!-- Modal do Carrinho -->
+    <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden flex items-center justify-center">
+        <div class="bg-gray-50 rounded-lg shadow-2xl w-11/12 md:w-2/3 lg:w-1/2 max-w-4xl max-h-[90vh] flex flex-col slide-in-up">
+            <div class="flex justify-between items-center p-5 border-b bg-white rounded-t-lg">
+                <h2 class="text-2xl font-bold text-gray-800" data-lang="cartTitle">Seu Carrinho</h2>
+                <button id="close-cart" class="text-gray-500 hover:text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="cart-items" class="p-5 overflow-y-auto flex-grow">
+                <!-- Itens do carrinho serão inseridos aqui -->
+            </div>
+            <div class="p-5 border-t bg-white rounded-b-lg">
+                <h3 class="text-lg font-semibold mb-3" data-lang="deliveryOptions">Opções de Entrega</h3>
+                <div class="space-y-2 mb-4">
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="delivery" value="Retirar no local" class="form-radio h-5 w-5 text-yellow-600" checked>
+                        <span class="ml-3 text-gray-700" data-lang="deliveryPickup">Retirar no local (Alameda Rhoterdam 970)</span>
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="delivery" value="Uber Flash" class="form-radio h-5 w-5 text-yellow-600">
+                        <span class="ml-3 text-gray-700" data-lang="deliveryUber">Uber Flash</span>
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="delivery" value="99 Moto" class="form-radio h-5 w-5 text-yellow-600">
+                        <span class="ml-3 text-gray-700" data-lang="delivery99">99 Moto</span>
+                    </label>
+                </div>
+
+                <div id="delivery-address-container" class="mt-4 hidden">
+                    <label for="delivery-address" class="block text-sm font-medium text-gray-700" data-lang="deliveryAddressLabel">Endereço de Entrega:</label>
+                    <input type="text" id="delivery-address" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm" placeholder="Sua rua, número, bairro...">
+                    <p class="text-xs text-gray-500 mt-1" data-lang="deliveryNote">* Fazemos a cotação de distância até seu endereço</p>
+                </div>
+                
+                <div class="flex justify-between items-center mb-4 mt-4">
+                    <span class="text-xl font-semibold" data-lang="cartTotal">Total:</span>
+                    <span id="cart-total" class="text-2xl font-bold text-yellow-600">R$ 0,00</span>
+                </div>
+                <button id="checkout-btn" class="w-full bg-green-500 text-white py-3 rounded-lg text-lg font-bold hover:bg-green-600 transition-colors" data-lang="checkoutButton">Finalizar Pedido via WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal da História -->
+    <div id="history-modal" class="fixed inset-0 bg-black bg-opacity-60 z-40 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-2xl w-11/12 md:w-2/3 lg:w-1/2 max-w-4xl max-h-[90vh] flex flex-col slide-in-up">
+            <div class="flex justify-between items-center p-5 border-b">
+                <h2 class="text-2xl font-bold text-gray-800" data-lang="navHistory">A História</h2>
+                <button id="close-history" class="text-gray-500 hover:text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-8 overflow-y-auto history-font">
+                <h3 class="text-3xl font-bold text-yellow-600 mb-4 font-sans" data-lang="historyTitle1">O que é um Tequeño?</h3>
+                <p class="text-gray-700 leading-relaxed mb-8" data-lang="historyDesc1">
+                    O tequeño representa a essência dos aperitivos venezuelanos, sendo o mais célebre e apreciado em todo o país. Consiste em um bastão de queijo branco, de textura semidura e sabor característico, cuidadosamente envolto em uma massa fina e macia de farinha de trigo. Ao ser frito, o tequeño adquire uma coloração dourada e uma crocância inigualável, que contrasta com o interior cremoso do queijo derretido. Cada mordida é uma celebração de texturas e sabores, uma experiência gastronômica memorável.
+                </p>
+                <div class="text-center mb-8">
+                     <img src="images/logo.png" alt="[Logo da DoniaTeq]" class="rounded-lg w-auto h-24 mx-auto">
+                </div>
+                <h3 class="text-3xl font-bold text-yellow-600 mb-4 font-sans" data-lang="historyTitle2">Origem</h3>
+                <p class="text-gray-700 leading-relaxed" data-lang="historyDesc2">
+                    A origem do tequeño remonta ao final do século XIX na cidade de Los Teques, capital do estado de Miranda. Segundo a tradição, a iguaria foi criada nas cozinhas das famílias abastadas de Caracas que veraneavam na região. Atribui-se a invenção a uma cozinheira da família Vielma, que, ao desenvolver um novo petisco para os cafés da tarde, deu vida à receita. O sucesso foi instantâneo, e o salgado ficou conhecido como o "pastelito de Los Teques", nome que, com o tempo, foi carinhosamente abreviado para "tequeño". Atualmente, é um elemento indispensável na cultura festiva venezuelana.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-30">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-3xl font-extrabold text-yellow-500">
+                <a href="#" class="flex items-center">
+                    <img src="images/logo.png" alt="[Logo da DoniaTeq]" class="h-10 mr-3 transition-transform duration-300 hover:scale-110">
+                    <span class="logo-font">DoniaTeq</span>
+                </a>
+            </div>
+            <div class="flex items-center">
+                <!-- Menu Desktop -->
+                <div class="hidden md:flex space-x-8">
+                    <a href="#menu" class="text-gray-600 hover:text-yellow-500 font-semibold transition-colors" data-lang="navMenu">Cardápio</a>
+                    <a href="#historia" class="text-gray-600 hover:text-yellow-500 font-semibold transition-colors" data-lang="navHistory">A História</a>
+                    <a href="#contato" class="text-gray-600 hover:text-yellow-500 font-semibold transition-colors" data-lang="navContact">Contato</a>
+                </div>
+                <!-- Seletor de Idioma -->
+                <div class="flex items-center ml-4 md:ml-8 space-x-2 text-sm">
+                    <button class="lang-btn" data-lang-set="pt">PT</button>
+                    <span>|</span>
+                    <button class="lang-btn active" data-lang-set="es">ES</button>
+                </div>
+                 <!-- Botão Hamburger -->
+                <div class="md:hidden flex items-center ml-4">
+                    <button id="mobile-menu-button" class="text-gray-800 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white py-2">
+            <a href="#menu" class="block text-center py-2 text-gray-600 hover:text-yellow-500 mobile-link" data-lang="navMenu">Cardápio</a>
+            <a href="#historia" class="block text-center py-2 text-gray-600 hover:text-yellow-500 mobile-link" data-lang="navHistory">A História</a>
+            <a href="#contato" class="block text-center py-2 text-gray-600 hover:text-yellow-500 mobile-link" data-lang="navContact">Contato</a>
+        </div>
+    </header>
+
+    <!-- Seção Hero -->
+    <section class="hero-bg text-white h-[60vh] md:h-[80vh] flex items-center">
+        <div class="container mx-auto px-6 text-center fade-in">
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 drop-shadow-lg" data-lang="heroTitle">O Autêntico Sabor Venezuelano.</h1>
+            <p class="text-lg md:text-xl max-w-2xl mx-auto mb-8 drop-shadow-md" data-lang="heroSubtitle">Feitos na hora, crocantes por fora e com muito queijo derretendo por dentro. Peça já os seus!</p>
+            <a href="#menu" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105" data-lang="heroButton">Ver Cardápio</a>
+        </div>
+    </section>
+
+    <!-- Seção do Cardápio -->
+    <main id="menu" class="container mx-auto px-6 py-16">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-yellow-600" data-lang="menuTitle">Nosso Cardápio</h2>
+            <p class="text-gray-600 mt-2" data-lang="menuSubtitle">Escolha seus tequeños favoritos e adicione ao carrinho!</p>
+        </div>
+
+        <!-- Sabores Salgados -->
+        <div class="mb-16">
+            <h3 class="text-3xl font-bold text-gray-800 border-b-4 border-yellow-500 pb-2 mb-8" data-lang="menuSalgados">Salgados</h3>
+            <div id="salgados-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Produtos Salgados inseridos aqui via JS -->
+            </div>
+        </div>
+
+        <!-- Sabores Doces -->
+        <div>
+            <h3 class="text-3xl font-bold text-gray-800 border-b-4 border-yellow-500 pb-2 mb-8" data-lang="menuDoces">Doces</h3>
+            <div id="doces-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Produtos Doces inseridos aqui via JS -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Seção Contato -->
+    <footer id="contato" class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-6 text-center">
+            <h3 class="text-3xl font-bold mb-4" data-lang="contactTitle">Entre em Contato!</h3>
+            <p class="mb-6" data-lang="contactSubtitle">Peça diretamente pelo nosso WhatsApp!</p>
+            <div class="flex justify-center space-x-6">
+                <a href="https://wa.me/5514991752214?text=Ol%C3%A1%21%20Gostaria%20de%20fazer%20um%20pedido." target="_blank" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105">WhatsApp</a>
+            </div>
+            <div class="mt-8 text-gray-400">
+                <p>&copy; 2025 DoniaTeq. <span data-lang="footerRights">Todos os direitos reservados.</span></p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Toast de Notificação -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-yellow-500 text-black py-2 px-5 rounded-lg shadow-lg opacity-0 transform translate-y-10 transition-all duration-300" data-lang="toastMessage">
+        Item adicionado ao carrinho!
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const languageStrings = {
+                pt: {
+                    // Navegação
+                    navMenu: 'Cardápio',
+                    navHistory: 'A História',
+                    navContact: 'Contato',
+                    // Hero
+                    heroTitle: 'O Autêntico Sabor Venezuelano.',
+                    heroSubtitle: 'Feitos na hora, crocantes por fora e com muito queijo derretendo por dentro. Peça já os seus!',
+                    heroButton: 'Ver Cardápio',
+                    // Menu
+                    menuTitle: 'Nosso Cardápio',
+                    menuSubtitle: 'Escolha seus tequeños favoritos e adicione ao carrinho!',
+                    menuSalgados: 'Salgados',
+                    menuDoces: 'Doces',
+                    // História
+                    historyTitle1: 'O que é um Tequeño?',
+                    historyDesc1: 'O tequeño representa a essência dos aperitivos venezuelanos, sendo o mais célebre e apreciado em todo o país. Consiste em um bastão de queijo branco, de textura semidura e sabor característico, cuidadosamente envolto em uma massa fina e macia de farinha de trigo. Ao ser frito, o tequeño adquire uma coloração dourada e uma crocância inigualável, que contrasta com o interior cremoso do queijo derretido. Cada mordida é uma celebração de texturas e sabores, uma experiência gastronômica memorável.',
+                    historyTitle2: 'Origem',
+                    historyDesc2: 'A origem do tequeño remonta ao final do século XIX na cidade de Los Teques, capital do estado de Miranda. Segundo a tradição, a iguaria foi criada nas cozinhas das famílias abastadas de Caracas que veraneavam na região. Atribui-se a invenção a uma cozinheira da família Vielma, que, ao desenvolver um novo petisco para os cafés da tarde, deu vida à receita. O sucesso foi instantâneo, e o salgado ficou conhecido como o "pastelito de Los Teques", nome que, com o tempo, foi carinhosamente abreviado para "tequeño". Atualmente, é um elemento indispensável na cultura festiva venezuelana.',
+                    // Contato
+                    contactTitle: 'Entre em Contato!',
+                    contactSubtitle: 'Peça diretamente pelo nosso WhatsApp!',
+                    footerRights: 'Todos os direitos reservados.',
+                    // Carrinho
+                    cartTitle: 'Seu Carrinho',
+                    cartEmpty: 'Seu carrinho está vazio.',
+                    cartTotal: 'Total:',
+                    checkoutButton: 'Finalizar Pedido via WhatsApp',
+                    deliveryOptions: 'Opções de Entrega',
+                    deliveryPickup: 'Retirar no local (Alameda Rhoterdam 970)',
+                    deliveryUber: 'Uber Flash',
+                    delivery99: '99 Moto',
+                    deliveryAddressLabel: 'Endereço de Entrega:',
+                    deliveryNote: '* Fazemos a cotação de distância até seu endereço',
+                    addressRequired: 'Por favor, insira seu endereço para a entrega.',
+                    // Produtos
+                    desc_queijo: 'O clássico irresistível com queijo branco derretido.',
+                    desc_presunto_queijo: 'Uma combinação deliciosa e super recheada.',
+                    desc_calabresa: 'Sabor marcante com calabresa especial e queijo.',
+                    desc_chocolate: 'Uma explosão de chocolate cremoso para os chocólatras.',
+                    desc_doce_leite: 'Aquele docinho cremoso que todo mundo ama.',
+                    desc_goiabada_queijo: 'A combinação perfeita do doce Romeu e Julieta.',
+                    // Outros
+                    addButton: 'Adicionar',
+                    toastMessage: 'Item adicionado ao carrinho!',
+                },
+                es: {
+                    // Navegación
+                    navMenu: 'Menú',
+                    navHistory: 'La Historia',
+                    navContact: 'Contacto',
+                    // Hero
+                    heroTitle: 'El Auténtico Sabor Venezolano.',
+                    heroSubtitle: 'Hechos al momento, crujientes por fuera y con mucho queso derritiéndose por dentro. ¡Pide ya los tuyos!',
+                    heroButton: 'Ver Menú',
+                    // Menú
+                    menuTitle: 'Nuestro Menú',
+                    menuSubtitle: '¡Elige tus tequeños favoritos y añádelos al carrito!',
+                    menuSalgados: 'Salados',
+                    menuDoces: 'Dulces',
+                    // Historia
+                    historyTitle1: '¿Qué es un Tequeño?',
+                    historyDesc1: 'El tequeño representa la esencia de los aperitivos venezolanos, siendo el más célebre y apreciado en todo el país. Consiste en un bastón de queso blanco, de textura semidura y sabor característico, cuidadosamente envuelto en una masa fina y suave de harina de trigo. Al freírse, el tequeño adquiere un color dorado y una crocancia inigualable, que contrasta con el interior cremoso del queso derretido. Cada bocado es una celebración de texturas y sabores, una experiencia gastronómica memorable.',
+                    historyTitle2: 'Origen',
+                    historyDesc2: 'El origen del tequeño se remonta a finales del siglo XIX en la ciudad de Los Teques, capital del estado de Miranda. Según la tradición, el manjar fue creado en las cocinas de las familias adineradas de Caracas que veraneaban en la zona. Se atribuye la invención a una cocinera de la familia Vielma, quien, al desarrollar un nuevo aperitivo para las meriendas, dio vida a la receta. El éxito fue instantáneo, y el bocadillo se conoció como el "pastelito de Los Teques", nombre que, con el tiempo, fue cariñosamente abreviado a "tequeño". Actualmente, es un elemento indispensable en la cultura festiva venezolana.',
+                    // Contacto
+                    contactTitle: '¡Contáctanos!',
+                    contactSubtitle: '¡Pide directamente por nuestro WhatsApp!',
+                    footerRights: 'Todos los derechos reservados.',
+                    // Carrito
+                    cartTitle: 'Tu Carrito',
+                    cartEmpty: 'Tu carrito está vacío.',
+                    cartTotal: 'Total:',
+                    checkoutButton: 'Finalizar Pedido por WhatsApp',
+                    deliveryOptions: 'Opciones de Entrega',
+                    deliveryPickup: 'Recoger en el local (Alameda Rhoterdam 970)',
+                    deliveryUber: 'Uber Flash',
+                    delivery99: '99 Moto',
+                    deliveryAddressLabel: 'Dirección de Entrega:',
+                    deliveryNote: '* Hacemos la cotización de la distancia hasta su dirección',
+                    addressRequired: 'Por favor, ingrese su dirección para la entrega.',
+                     // Productos
+                    desc_queijo: 'El clásico irresistible con queso blanco derretido.',
+                    desc_presunto_queijo: 'Una combinación deliciosa y súper rellena.',
+                    desc_calabresa: 'Sabor audaz con chorizo especial y queso.',
+                    desc_chocolate: 'Una explosión de chocolate cremoso para los adictos al chocolate.',
+                    desc_doce_leite: 'Ese dulce cremoso que a todos les encanta.',
+                    desc_goiabada_queijo: 'La combinación perfecta del dulce Romeo y Julieta.',
+                    // Otros
+                    addButton: 'Añadir',
+                    toastMessage: '¡Artículo añadido al carrito!',
+                }
+            };
+
+            const products = [
+                // Salgados
+                { id: 1, name_pt: 'Queijo (8 unids)', name_es: 'Queso (8 unids)', category: 'salgado', price: 22.00, image: 'images/tekqueijo.png', descKey: 'desc_queijo' },
+                { id: 2, name_pt: 'Queijo (16 unids)', name_es: 'Queso (16 unids)', category: 'salgado', price: 40.00, image: 'images/tekqueijo.png', descKey: 'desc_queijo' },
+                { id: 3, name_pt: 'Presunto e Queijo (8 unids)', name_es: 'Jamón y Queso (8 unids)', category: 'salgado', price: 24.00, image: 'images/tekpresunto.png', descKey: 'desc_presunto_queijo' },
+                { id: 4, name_pt: 'Presunto e Queijo (16 unids)', name_es: 'Jamón y Queso (16 unids)', category: 'salgado', price: 44.00, image: 'images/tekpresunto.png', descKey: 'desc_presunto_queijo' },
+                { id: 5, name_pt: 'Calabresa (8 unids)', name_es: 'Calabresa (8 unids)', category: 'salgado', price: 24.00, image: 'images/tekcalabresa.png', descKey: 'desc_calabresa' },
+                { id: 6, name_pt: 'Calabresa (16 unids)', name_es: 'Calabresa (16 unids)', category: 'salgado', price: 44.00, image: 'images/tekcalabresa.png', descKey: 'desc_calabresa' },
+                // Doces
+                { id: 7, name_pt: 'Chocolate (8 unids)', name_es: 'Chocolate (8 unids)', category: 'doce', price: 26.00, image: 'images/tekchoco.png', descKey: 'desc_chocolate' },
+                { id: 8, name_pt: 'Chocolate (16 unids)', name_es: 'Chocolate (16 unids)', category: 'doce', price: 48.00, image: 'images/tekchoco.png', descKey: 'desc_chocolate' },
+                { id: 9, name_pt: 'Doce de Leite (8 unids)', name_es: 'Dulce de Leche (8 unids)', category: 'doce', price: 26.00, image: 'images/tekdoceleite.png', descKey: 'desc_doce_leite' },
+                { id: 10, name_pt: 'Doce de Leite (16 unids)', name_es: 'Dulce de Leche (16 unids)', category: 'doce', price: 48.00, image: 'images/tekdoceleite.png', descKey: 'desc_doce_leite' },
+                { id: 11, name_pt: 'Queijo com Goiabada (8 unids)', name_es: 'Queso con Guayaba (8 unids)', category: 'doce', price: 25.00, image: 'images/tekqueijogoiabada.png', descKey: 'desc_goiabada_queijo' },
+                { id: 12, name_pt: 'Queijo com Goiabada (16 unids)', name_es: 'Queso con Guayaba (16 unids)', category: 'doce', price: 46.00, image: 'images/tekqueijogoiabada.png', descKey: 'desc_goiabada_queijo' },
+            ];
+            
+            // DOM Elements
+            const salgadosList = document.getElementById('salgados-list');
+            const docesList = document.getElementById('doces-list');
+            const cartIcon = document.getElementById('cart-icon');
+            const cartModal = document.getElementById('cart-modal');
+            const closeCartBtn = document.getElementById('close-cart');
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartCount = document.getElementById('cart-count');
+            const cartTotal = document.getElementById('cart-total');
+            const toast = document.getElementById('toast');
+            const historyModal = document.getElementById('history-modal');
+            const closeHistoryBtn = document.getElementById('close-history');
+            const historyLink = document.querySelector('a[href="#historia"]');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const deliveryRadios = document.querySelectorAll('input[name="delivery"]');
+            const deliveryAddressContainer = document.getElementById('delivery-address-container');
+            const deliveryAddressInput = document.getElementById('delivery-address');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            let cart = [];
+            let currentLang = 'es';
+
+            function setLanguage(lang) {
+                currentLang = lang;
+                document.documentElement.lang = lang;
+                document.querySelectorAll('[data-lang]').forEach(el => {
+                    const key = el.getAttribute('data-lang');
+                    if(languageStrings[lang][key]) {
+                       el.innerText = languageStrings[lang][key];
+                    }
+                });
+
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.getAttribute('data-lang-set') === lang) {
+                        btn.classList.add('active');
+                    }
+                });
+                renderProducts();
+                updateCart();
+            }
+
+            // Renderizar produtos
+            function renderProducts() {
+                salgadosList.innerHTML = '';
+                docesList.innerHTML = '';
+                
+                products.forEach(product => {
+                    const productName = product['name_' + currentLang] || product.name_pt;
+                    const productCard = `
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 flex flex-col slide-in-up">
+                            <img src="${product.image}" alt="[Imagem de ${productName}]" class="w-full h-48 object-cover">
+                            <div class="p-5 flex flex-col flex-grow">
+                                <h3 class="text-xl font-bold mb-2">${productName}</h3>
+                                <p class="text-gray-600 mb-4 flex-grow">${languageStrings[currentLang][product.descKey]}</p>
+                                <div class="flex justify-between items-center mt-auto">
+                                    <span class="text-2xl font-bold text-yellow-600">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
+                                    <button data-id="${product.id}" class="add-to-cart-btn bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-yellow-600 transition-colors">
+                                        ${languageStrings[currentLang].addButton}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    if (product.category === 'salgado') {
+                        salgadosList.innerHTML += productCard;
+                    } else {
+                        docesList.innerHTML += productCard;
+                    }
+                });
+            }
+
+            // Atualizar o carrinho
+            function updateCart() {
+                cartItemsContainer.innerHTML = '';
+                if (cart.length === 0) {
+                    cartItemsContainer.innerHTML = `<p class="text-gray-500 text-center p-4">${languageStrings[currentLang].cartEmpty}</p>`;
+                } else {
+                    cart.forEach(item => {
+                        const itemName = item['name_' + currentLang] || item.name_pt;
+                        const cartItem = `
+                            <div class="cart-item-wrapper flex justify-between items-center p-4 mb-3 bg-white rounded-lg shadow-sm">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <img src="${item.image}" alt="[Imagem de ${itemName}]" class="w-16 h-16 object-cover rounded-md">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800">${itemName}</h4>
+                                        <p class="text-sm text-gray-500">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button class="quantity-change bg-gray-200 rounded-md w-7 h-7 flex items-center justify-center font-bold hover:bg-gray-300 transition-colors" data-id="${item.id}" data-change="-1">-</button>
+                                    <span class="font-bold w-8 text-center">${item.quantity}</span>
+                                    <button class="quantity-change bg-gray-200 rounded-md w-7 h-7 flex items-center justify-center font-bold hover:bg-gray-300 transition-colors" data-id="${item.id}" data-change="1">+</button>
+                                </div>
+                                <div class="text-right w-24 ml-4">
+                                    <span class="font-bold text-lg text-gray-800">R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}</span>
+                                </div>
+                                <button class="remove-item text-red-500 hover:text-red-700 ml-4" data-id="${item.id}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        `;
+                        cartItemsContainer.innerHTML += cartItem;
+                    });
+                }
+
+                const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                cartTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+                
+                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+                cartCount.textContent = totalItems;
+                
+                if (totalItems > 0) {
+                   cartCount.classList.remove('hidden');
+                } else {
+                   cartCount.classList.add('hidden');
+                }
+            }
+            
+            function showToast() {
+                toast.classList.remove('opacity-0', 'translate-y-10');
+                toast.classList.add('opacity-100', 'translate-y-0');
+                setTimeout(() => {
+                    toast.classList.remove('opacity-100', 'translate-y-0');
+                    toast.classList.add('opacity-0', 'translate-y-10');
+                }, 2000);
+            }
+
+            // Event Listeners
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            document.querySelectorAll('.mobile-link').forEach(link => {
+                link.addEventListener('click', () => {
+                     mobileMenu.classList.add('hidden');
+                     if(link.getAttribute('href') === '#historia'){
+                         historyModal.classList.remove('hidden');
+                     }
+                });
+            });
+
+            deliveryRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    if (e.target.value === 'Retirar no local') {
+                        deliveryAddressContainer.classList.add('hidden');
+                    } else {
+                        deliveryAddressContainer.classList.remove('hidden');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    setLanguage(e.target.getAttribute('data-lang-set'));
+                });
+            });
+
+            document.getElementById('menu').addEventListener('click', e => {
+                if (e.target.classList.contains('add-to-cart-btn')) {
+                    const productId = parseInt(e.target.dataset.id);
+                    const product = products.find(p => p.id === productId);
+
+                    const existingItem = cart.find(item => item.id === productId);
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        cart.push({ ...product, quantity: 1 });
+                    }
+                    updateCart();
+                    showToast();
+                    
+                    const cartIconElement = document.getElementById('cart-icon');
+                    cartIconElement.classList.add('cart-bump');
+                    setTimeout(() => cartIconElement.classList.remove('cart-bump'), 400);
+                }
+            });
+            
+            cartItemsContainer.addEventListener('click', e => {
+                 const target = e.target.closest('button');
+                 if (!target) return;
+                 const productId = parseInt(target.dataset.id);
+                 
+                 if (target.classList.contains('quantity-change')) {
+                    const item = cart.find(i => i.id === productId);
+                    const change = parseInt(target.dataset.change);
+                    if (item) {
+                        item.quantity += change;
+                        if (item.quantity <= 0) {
+                            const cartItemDiv = target.closest('.cart-item-wrapper');
+                            if(cartItemDiv) {
+                                cartItemDiv.classList.add('item-removing');
+                                setTimeout(() => {
+                                    cart = cart.filter(i => i.id !== productId);
+                                    updateCart();
+                                }, 300);
+                                return;
+                            }
+                            cart = cart.filter(i => i.id !== productId);
+                        }
+                    }
+                    updateCart();
+                 }
+                 
+                 if (target.classList.contains('remove-item')) {
+                    const cartItemDiv = target.closest('.cart-item-wrapper');
+                    if(cartItemDiv) {
+                        cartItemDiv.classList.add('item-removing');
+                        setTimeout(() => {
+                            cart = cart.filter(i => i.id !== productId);
+                            updateCart();
+                        }, 300);
+                    } else {
+                        cart = cart.filter(i => i.id !== productId);
+                        updateCart();
+                    }
+                 }
+            });
+
+            cartIcon.addEventListener('click', () => cartModal.classList.remove('hidden'));
+            closeCartBtn.addEventListener('click', () => cartModal.classList.add('hidden'));
+            cartModal.addEventListener('click', e => {
+                if (e.target === cartModal) {
+                    cartModal.classList.add('hidden');
+                }
+            });
+
+            historyLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                historyModal.classList.remove('hidden');
+            });
+            closeHistoryBtn.addEventListener('click', () => historyModal.classList.add('hidden'));
+            historyModal.addEventListener('click', e => {
+                if (e.target === historyModal) {
+                    historyModal.classList.add('hidden');
+                }
+            });
+            
+            checkoutBtn.addEventListener('click', () => {
+                if (cart.length === 0) {
+                    alert(languageStrings[currentLang].cartEmpty);
+                    return;
+                }
+
+                const deliveryOption = document.querySelector('input[name="delivery"]:checked').value;
+                const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                let address = '';
+
+                if (deliveryOption !== 'Retirar no local') {
+                    address = deliveryAddressInput.value.trim();
+                    if (address === '') {
+                        alert(languageStrings[currentLang].addressRequired);
+                        deliveryAddressInput.focus();
+                        return;
+                    }
+                }
+
+                let message = `Olá DoniaTeq! 👋\nGostaria de fazer o seguinte pedido:\n\n*Meu Pedido:*\n`;
+
+                cart.forEach(item => {
+                    const itemName = item['name_' + currentLang] || item.name_pt;
+                    message += `- ${item.quantity}x ${itemName}\n`;
+                });
+
+                message += `\n*Opção de Entrega:*\n${deliveryOption}\n`;
+
+                if (address) {
+                    message += `*Endereço:*\n${address}\n`;
+                }
+
+                message += `\n*Total:* R$ ${total.toFixed(2).replace('.', ',')}`;
+                message += `\n\n_(Aguardando cotação da entrega)_`;
+
+                const whatsappNumber = '5514991752214'; // <-- NÚMERO ATUALIZADO
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+                window.open(whatsappUrl, '_blank');
+            });
+
+            // Iniciar a aplicação
+            setLanguage(currentLang);
+        });
+    </script>
+
+</body>
+</html>
+
